@@ -111,46 +111,6 @@ def health_check():
         "model_status": model_status
     })
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    if model is None:
-        return jsonify({"error": "Model not loaded"}), 503
-    
-    try:
-        data = request.get_json()
-        
-        if 'input' not in data:
-            return jsonify({"error": "No input provided"}), 400
-
-        # Process input and get prediction
-        # Note: You'll need to adjust this part based on your model's expected input format
-        input_text = data['input']
-        
-        # TODO: Add your model's preprocessing steps here
-        
-        with torch.no_grad():
-            # TODO: Add your model's inference steps here
-            # This is a placeholder - you'll need to modify based on your model's architecture
-            output = "Sample response"  # Replace with actual model output processing
-        
-        return jsonify({
-            "input": input_text,
-            "prediction": output
-        })
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/', methods=['GET'])
-def home():
-    return jsonify({
-        "message": "Welcome to the Restaurant Bot API",
-        "endpoints": {
-            "/predict": "POST - Make a prediction",
-            "/health": "GET - Check API health"
-        }
-    })
-
 @app.route("/", methods=["GET"])
 def index():
     return render_template_string(HTML_TEMPLATE)
