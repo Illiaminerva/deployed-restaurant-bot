@@ -18,10 +18,10 @@ def download_model():
         # Create model directory if it doesn't exist
         os.makedirs("model", exist_ok=True)
         
-        # Download model from Cloud Storage if not exists
+        # Try to load model from local path first
         model_path = os.path.join("model", "best_rl_model.pt")
         if not os.path.exists(model_path):
-            print("Downloading model from Cloud Storage...")
+            print("Model not found locally, downloading from Cloud Storage...")
             url = os.environ.get('MODEL_URL')
             if not url:
                 raise ValueError("MODEL_URL environment variable not set")
@@ -34,7 +34,7 @@ def download_model():
                     f.write(chunk)
             print("Model downloaded successfully")
         
-        # Load model
+        # Load model with original parameters
         model = RestaurantChatbot(device=device)
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
@@ -123,24 +123,17 @@ def chat():
     
     try:
         query = request.json.get("query", "")
-        # Add system prompt and context
-        context = (
-            "You are a helpful restaurant recommendation chatbot. "
-            "Provide specific, concise recommendations based on the user's request. "
-            "If you need more information, ask one clear follow-up question. "
-            "Always stay focused on restaurants and food-related topics.\n\n"
-        )
+        # Use original generation parameters that worked well
         response = model.generate_response(
-            context + query,
-            max_length=200,  # Increased for more complete responses
-            temperature=0.3,  # Reduced for more focused responses
-            top_p=0.9,
-            top_k=40,
+            query,
+            max_length=150,  # Increased for more complete responses
+            temperature=0.8,  # Original temperature
+            top_p=0.92,
+            top_k=50,
             do_sample=True
         )
-        # Clean up any repeated "Assistant:" prefixes
+        # Clean up response
         response = response.replace("Assistant:", "").strip()
-        # Prevent empty or very short responses
         if len(response.strip()) < 10:
             response = "I apologize, but I need more information to provide a good restaurant recommendation. Could you please provide more details about what you're looking for?"
         return jsonify({"response": response})
