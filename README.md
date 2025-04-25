@@ -2,6 +2,14 @@
 
 This repository contains the deployment code for the Restaurant Recommendation Chatbot. The model training and development code can be found in the [training repository](https://github.com/Illiaminerva/yelp-bot).
 
+## Technologies Used
+
+- **Docker** - Application containerization
+- **Google Cloud Run** - Serverless container deployment
+- **Google Cloud Storage** - Model weights storage
+- **Flask** - Web API framework
+- **PyTorch** - ML model serving
+
 ## Project Structure
 
 ```
