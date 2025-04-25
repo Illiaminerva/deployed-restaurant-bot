@@ -48,22 +48,24 @@ python app/flask_app.py
 
 ### Cloud Deployment
 
-The service is deployed on Google Cloud Run:
-1. Environment Variables:
-   - `MODEL_URL`: Points to the model weights in Cloud Storage
-   - `PORT`: Set automatically by Cloud Run
+The service is deployed on Google Cloud Run and accessible at:
+https://deployed-restaurant-bot-352450963275.us-central1.run.app
 
-2. Deployment Process:
-   - Builds from Dockerfile
-   - Downloads model weights at startup
-   - Serves predictions via Flask API
+Environment Variables:
+- `MODEL_URL`: Points to the model weights in Cloud Storage
+- `PORT`: Set automatically by Cloud Run
+
+Deployment Process:
+- Builds from Dockerfile
+- Downloads model weights at startup
+- Serves predictions via Flask API
 
 ## API Usage
 
 ### Chat Endpoint
 
 ```bash
-curl -X POST https://YOUR_CLOUD_RUN_URL/chat \
+curl -X POST https://deployed-restaurant-bot-352450963275.us-central1.run.app/chat \
   -H "Content-Type: application/json" \
   -d '{"query": "What's a good Italian restaurant in San Francisco?"}'
 ```
