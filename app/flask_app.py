@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template_string
 import torch
 import numpy as np
 from pathlib import Path
@@ -13,6 +13,62 @@ model = RestaurantChatbot(device=device)
 model_path = os.path.join("model", "best_rl_model.pt")
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()
+
+# HTML template for the chat interface
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restaurant Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .chat-container { margin-top: 20px; }
+        input[type="text"] { width: 80%; padding: 10px; margin-right: 10px; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background: #45a049; }
+        #response { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🤖 Restaurant Chatbot</h1>
+    <div class="chat-container">
+        <input type="text" id="query" placeholder="Ask about restaurants...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <div id="response"></div>
+
+    <script>
+    function sendMessage() {
+        const query = document.getElementById('query').value;
+        if (!query) return;
+
+        fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({query: query})
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('response').innerText = data.response;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('response').innerText = 'Error: Could not get response';
+        });
+    }
+
+    // Allow Enter key to send message
+    document.getElementById('query').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+    </script>
+</body>
+</html>
+"""
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -64,7 +120,7 @@ def home():
 
 @app.route("/", methods=["GET"])
 def index():
-    return "🤖 Restaurant Chatbot is running!"
+    return render_template_string(HTML_TEMPLATE)
 
 @app.route("/chat", methods=["POST"])
 def chat():
