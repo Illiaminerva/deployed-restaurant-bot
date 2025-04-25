@@ -123,7 +123,26 @@ def chat():
     
     try:
         query = request.json.get("query", "")
-        response = model.generate_response(query, max_length=100)
+        # Add system prompt and context
+        context = (
+            "You are a helpful restaurant recommendation chatbot. "
+            "Provide specific, concise recommendations based on the user's request. "
+            "If you need more information, ask one clear follow-up question. "
+            "Always stay focused on restaurants and food-related topics.\n\n"
+        )
+        response = model.generate_response(
+            context + query,
+            max_length=200,  # Increased for more complete responses
+            temperature=0.3,  # Reduced for more focused responses
+            top_p=0.9,
+            top_k=40,
+            do_sample=True
+        )
+        # Clean up any repeated "Assistant:" prefixes
+        response = response.replace("Assistant:", "").strip()
+        # Prevent empty or very short responses
+        if len(response.strip()) < 10:
+            response = "I apologize, but I need more information to provide a good restaurant recommendation. Could you please provide more details about what you're looking for?"
         return jsonify({"response": response})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
