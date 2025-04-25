@@ -1,6 +1,6 @@
 # Restaurant Chatbot Deployment
 
-This repository contains the deployment code for the Restaurant Recommendation Chatbot. The model training and development code can be found in the [training repository](YOUR_TRAINING_REPO_LINK).
+This repository contains the deployment code for the Restaurant Recommendation Chatbot. The model training and development code can be found in the [training repository](https://github.com/Illiaminerva/yelp-bot).
 
 ## Project Structure
 
@@ -78,7 +78,7 @@ curl -X POST https://YOUR_CLOUD_RUN_URL/chat \
 
 ## Model Training
 
-For details on model training, data preparation, and evaluation metrics, please refer to the [training repository](YOUR_TRAINING_REPO_LINK). The training process includes:
+For details on model training, data preparation, and evaluation metrics, please refer to the [training repository](https://github.com/Illiaminerva/yelp-bot). The training process includes:
 - Data collection and preprocessing
 - Fine-tuning on restaurant data
 - Reinforcement learning optimization
