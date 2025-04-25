@@ -6,11 +6,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# Copy the model file first (it's large and changes less frequently)
+COPY app/model/best_rl_model.pt app/model/
+
 # Copy the rest of the application
 COPY . .
-
-# Make sure the model directory exists
-RUN mkdir -p app/model
 
 # Expose the port the app runs on
 EXPOSE 8080

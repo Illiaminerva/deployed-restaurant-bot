@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Load model
 device = 'cpu'
 model = RestaurantChatbot(device=device)
-model_path = os.path.join(os.path.dirname(__file__), "model", "best_rl_model.pt")
+model_path = os.path.join("model", "best_rl_model.pt")  # Relative to the app directory
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()
 
