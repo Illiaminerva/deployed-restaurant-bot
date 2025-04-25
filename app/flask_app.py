@@ -4,15 +4,48 @@ import torch
 import numpy as np
 from pathlib import Path
 from models.chatbot import RestaurantChatbot
+import requests
 
 app = Flask(__name__)
 
-# Load model
+# Initialize model
 device = 'cpu'
-model = RestaurantChatbot(device=device)
-model_path = os.path.join("model", "best_rl_model.pt")  # Relative to the app directory
-model.load_state_dict(torch.load(model_path, map_location=device))
-model.eval()
+model = None
+
+def download_model():
+    global model
+    try:
+        # Create model directory if it doesn't exist
+        os.makedirs("model", exist_ok=True)
+        
+        # Download model from Cloud Storage if not exists
+        model_path = os.path.join("model", "best_rl_model.pt")
+        if not os.path.exists(model_path):
+            print("Downloading model from Cloud Storage...")
+            url = os.environ.get('MODEL_URL')
+            if not url:
+                raise ValueError("MODEL_URL environment variable not set")
+            
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            
+            with open(model_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print("Model downloaded successfully")
+        
+        # Load model
+        model = RestaurantChatbot(device=device)
+        model.load_state_dict(torch.load(model_path, map_location=device))
+        model.eval()
+        print("Model loaded successfully")
+        return True
+    except Exception as e:
+        print(f"Error loading model: {str(e)}")
+        return False
+
+# Download model on startup
+download_model()
 
 # HTML template for the chat interface
 HTML_TEMPLATE = """
@@ -124,6 +157,10 @@ def index():
 
 @app.route("/chat", methods=["POST"])
 def chat():
+    if model is None:
+        if not download_model():
+            return jsonify({"error": "Model not loaded"}), 503
+    
     try:
         query = request.json.get("query", "")
         response = model.generate_response(query, max_length=100)

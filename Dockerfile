@@ -6,10 +6,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Copy the model file first (it's large and changes less frequently)
-COPY app/model/best_rl_model.pt app/model/
-
-# Copy the rest of the application
+# Copy the application code
 COPY . .
 
 # Expose the port the app runs on
