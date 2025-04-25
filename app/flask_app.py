@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Load model
 device = 'cpu'
 model = RestaurantChatbot(device=device)
-model_path = os.path.join("model", "best_rl_model.pt")
+model_path = os.path.join(os.path.dirname(__file__), "model", "best_rl_model.pt")
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()
 
@@ -124,9 +124,12 @@ def index():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    query = request.json.get("query", "")
-    response = model.generate_response(query, max_length=100)
-    return jsonify({"response": response})
+    try:
+        query = request.json.get("query", "")
+        response = model.generate_response(query, max_length=100)
+        return jsonify({"response": response})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
